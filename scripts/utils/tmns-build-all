@@ -191,19 +191,27 @@ pushd ${DEST_DIR}
 #  2. terminus-log
 #  3. terminus-image
 if [ "${BUILD_SET}" = 'all' ]; then
-    _tmns-build-repo 'terminus-cmake'  ${BUILD_TYPE} ${CLEAR_ALL}
+    _tmns-build-repo 'terminus-cmake'   ${BUILD_TYPE} ${CLEAR_ALL}
 fi
 
 if [ "${BUILD_SET}" = 'all' ]; then
-    _tmns-build-repo 'terminus-log'    ${BUILD_TYPE} ${CLEAR_ALL}
+    _tmns-build-repo 'terminus-log'     ${BUILD_TYPE} ${CLEAR_ALL}
 fi
 
 if [ "${BUILD_SET}" = 'all' ]; then
-    _tmns-build-repo 'terminus-core'   ${BUILD_TYPE} ${CLEAR_ALL}
+    _tmns-build-repo 'terminus-outcome' ${BUILD_TYPE} ${CLEAR_ALL}
 fi
 
 if [ "${BUILD_SET}" = 'all' ]; then
-    _tmns-build-repo 'terminus-image'  ${BUILD_TYPE} ${CLEAR_ALL}
+    _tmns-build-repo 'terminus-core'    ${BUILD_TYPE} ${CLEAR_ALL}
+fi
+
+if [ "${BUILD_SET}" = 'all' ]; then
+    _tmns-build-repo 'terminus-math'    ${BUILD_TYPE} ${CLEAR_ALL}
+fi
+
+if [ "${BUILD_SET}" = 'all' ]; then
+    _tmns-build-repo 'terminus-image'   ${BUILD_TYPE} ${CLEAR_ALL}
 fi
 
 
