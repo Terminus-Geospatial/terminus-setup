@@ -1,0 +1,215 @@
+#!/usr/bin/env bash
+
+#  Simple script for building Terminus dependencies efficiently
+#
+
+set -e 
+
+#---------------------------------------------------------------#
+#-          Build the Repo with the Settings Specified         -#
+#---------------------------------------------------------------#
+function _tmns-build-repo()
+{
+    REPO_PATH=${1}
+    BUILD_TYPE=${2}
+    CLEAN_ALL=${3}
+
+    #  Check if we should clean when building
+    BUILD_ARGS=''
+    if [ "${CLEAN_ALL}" = '1' ]; then
+        BUILD_ARGS="${BUILD_ARGS} -c "
+    fi
+
+    log_debug "Building ${REPO_PATH}"
+    
+    if [ -d ${REPO_PATH} ]; then
+
+        pushd ${REPO_PATH}
+
+        if [[ "${BUILD_TYPE}" = 'all' || "${BUILD_TYPE}" == 'release' ]]; then
+            conan-build.sh ${BUILD_ARGS} -r ${CONAN_BUILD_FLAGS}
+        fi
+
+        if [[ "${BUILD_TYPE}" = 'all' || "${BUILD_TYPE}" == 'debug' ]]; then
+            conan-build.sh ${BUILD_ARGS} ${CONAN_BUILD_FLAGS}
+        fi
+
+        popd
+    else
+        log_error "unable to build repo: ${REPO_PATH}"
+    fi
+}
+
+#-----------------------------------------------#
+#-          Print Usage Instructions           -#
+#-----------------------------------------------#
+function usage() {
+    echo "usage: ${0}"
+    echo
+    echo 'Builds all repos required for a specific pipeline.  If the folders'
+    echo 'do not exist, then they are skipped, meaning it is on the user to'
+    echo 'ensure the dependencies are all configured properly.'
+    echo
+    echo 'Optional Flags:'
+    echo '    -h  : Print this menu and exit' 
+    echo '    -v  : Verbose logging'
+    echo
+    echo 'Build Flags:'
+    echo '    -a  : Build Release AND Debug builds (in that order)'
+    echo '    -d  : Debug-only build (Default)'
+    echo '    -r  : Release-only build'
+    echo
+    echo '    -s  <name> : Build a subset of repos even if cloned.'
+    echo '        all  : Every repo detected (Default)'
+    echo
+    echo '    -c  : Do a clean with each build.'
+    echo
+}
+
+#--------------------------------------------#
+#-   Shamelessly Ripped Off from log.bash   -#
+#--------------------------------------------#
+if [ "$TMNS_NO_COLOR" != 'true' ]; then
+    __color_grey='\033[38;5;8m'
+    __color_purple='\033[38;5;13m'
+    __color_yellow='\033[38;5;3m'
+    __color_blue='\033[38;5;33m'
+    __color_red='\033[38;5;9m'
+    __color_reset='\033[0m'
+fi
+
+declare -A _tmns_log_levels
+_tmns_log_levels=(
+    [debug]=0
+    [trace]=1
+    [info]=2
+    [warn]=3
+    [error]=4
+)
+
+function _should_log() {
+    test "$_tmns_log_level" -le "${_tmns_log_levels[$1]}"
+}
+
+function log_debug() {
+    _should_log debug && echo -e "${__color_purple}dbg:${__color_reset}" "$@" || true
+}
+
+function log_trace() {
+    _should_log trace && echo -e "${__color_grey}trc:" "$@" "${__color_reset}" || true
+}
+
+function log_info() {
+    _should_log info && echo -e "${__color_blue}inf:${__color_reset}" "$@" || true
+}
+
+function log_warn() {
+    _should_log warn && echo -e "${__color_yellow}wrn:${__color_reset}" "$@" 1>&2 || true
+}
+
+function log_error() {
+    _should_log error && echo -e "${__color_red}err:${__color_reset}" "$@" 1>&2 || true
+}
+
+#--------------------------#
+#-    END OF LOG SETUP    -#
+#--------------------------#
+
+#  Stop right now if conan isn't defined
+if [ "`type conan`" = '' ]; then 
+    log_error 'conan is not in the current path.'
+    log_error 'run "go-conan" or add conan to path with a different method'
+    exit 0
+fi
+
+#  Get current directory and navigate to new location
+START_CWD=${PWD}
+DEST_DIR=${PWD}
+CLEAR_ALL='0'
+BUILD_TYPE='debug'
+BUILD_SET='all'
+CONAN_BUILD_FLAGS=''
+
+while [ -n "${1}" ]; do
+    case "${1}" in
+
+        -c)
+            CLEAR_ALL='1'
+            ;;
+        
+        -a)
+            BUILD_TYPE='all'
+            ;;
+
+        -r)
+            BUILD_TYPE='release'
+            ;;
+
+        -d)
+            BUILD_TYPE='debug'
+            ;;
+
+        --build-missing)
+            CONAN_BUILD_FLAGS="${CONAN_BUILD_FLAGS} --build-missing"
+            ;;
+        
+        -s)
+            shift
+            BUILD_SET="${1}"
+            ;;
+        
+        -h)
+            usage
+            exit 0
+            ;;
+            
+        *)
+            DEST_DIR="${1}"
+            ;;
+    esac
+    shift
+done
+
+#---------------------------------------#
+#-          Log Configuration          -#
+#---------------------------------------#
+if [ -n "$TMNS_VERBOSE" ]; then
+    _tmns_log_level=${_tmns_log_levels[debug]}
+elif [ -n "$TMNS_LOG_LEVEL" ]; then
+    _tmns_log_level=${_tmns_log_levels[$TMNS_LOG_LEVEL]}
+else
+    _tmns_log_level=${_tmns_log_levels[info]}
+fi
+#---------------------------------------#
+
+log_info "Building Set: ${BUILD_SET}"
+log_debug "Navigating to ${DEST_DIR}"
+pushd ${DEST_DIR}
+
+#  Build Sequence
+#  1. terminus-cmake
+#  2. terminus-log
+#  3. terminus-image
+if [ "${BUILD_SET}" = 'all' ]; then
+    _tmns-build-repo 'terminus-cmake'  ${BUILD_TYPE} ${CLEAR_ALL}
+fi
+
+if [ "${BUILD_SET}" = 'all' ]; then
+    _tmns-build-repo 'terminus-log'    ${BUILD_TYPE} ${CLEAR_ALL}
+fi
+
+if [ "${BUILD_SET}" = 'all' ]; then
+    _tmns-build-repo 'terminus-core'   ${BUILD_TYPE} ${CLEAR_ALL}
+fi
+
+if [ "${BUILD_SET}" = 'all' ]; then
+    _tmns-build-repo 'terminus-image'  ${BUILD_TYPE} ${CLEAR_ALL}
+fi
+
+
+#  Return 
+popd
+
+########################################################################################
+##                                    UNCLASSIFIED                                    ##
+########################################################################################

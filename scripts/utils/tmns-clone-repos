@@ -1,0 +1,169 @@
+#!/usr/bin/env bash
+
+function usage() {
+
+    echo "usage: ${0} <flags>"
+    echo
+    echo 'Clones all repositories for a desired project. Primary case for debug testing'
+    echo 'where you need to build all dependencies.'
+    echo
+    echo 'App Mode:'
+    echo '   --all  : All primary C++ applications (default)'
+    echo ''
+    echo 'Other Flags:'
+    echo '   -h : Print this menu'
+    echo '   -v : Verbose logging'
+    echo ''
+
+}
+
+function _checkout_repo() {
+
+    REPO_NAME="${1}"
+    log_info "Attempting to check out: ${REPO_NAME}"
+    
+    if [ -d "${REPO_NAME}" ]; then
+        log_info "Skipping clone of ${REPO_NAME} as already cloned"
+        return
+    fi
+
+    FULL_URL="${GIT_REPO_URL}/${REPO_NAME}"
+    git clone ${FULL_URL}
+}
+
+#--------------------------------------------#
+#-   Shamelessly Ripped Off from log.bash   -#
+#--------------------------------------------#
+if [ "$TMNS_NO_COLOR" != 'true' ]; then
+    __color_grey='\033[38;5;8m'
+    __color_purple='\033[38;5;13m'
+    __color_yellow='\033[38;5;3m'
+    __color_blue='\033[38;5;33m'
+    __color_red='\033[38;5;9m'
+    __color_reset='\033[0m'
+fi
+
+declare -A _tmns_log_levels
+_tmns_log_levels=(
+    [debug]=0
+    [trace]=1
+    [info]=2
+    [warn]=3
+    [error]=4
+)
+
+function _should_log() {
+    test "$_tmns_log_level" -le "${_tmns_log_levels[$1]}"
+}
+
+function log_debug() {
+    _should_log debug && echo -e "${__color_purple}dbg:${__color_reset}" "$@" || true
+}
+
+function log_trace() {
+    _should_log trace && echo -e "${__color_grey}trc:" "$@" "${__color_reset}" || true
+}
+
+function log_info() {
+    _should_log info && echo -e "${__color_blue}inf:${__color_reset}" "$@" || true
+}
+
+function log_warn() {
+    _should_log warn && echo -e "${__color_yellow}wrn:${__color_reset}" "$@" 1>&2 || true
+}
+
+function log_error() {
+    _should_log error && echo -e "${__color_red}err:${__color_reset}" "$@" 1>&2 || true
+}
+
+#--------------------------#
+#-    END OF LOG SETUP    -#
+#--------------------------#
+
+#  Repo Set
+REPO_SET='ALL'
+
+TMNS_VERBOSE='info'
+
+# Iterate over command-line options
+while [ -n "${1}" ]; do
+    case "${1}" in
+
+        --all)
+            REPO_SET='ALL'
+            ;;
+
+        -v) 
+            TMNS_VERBOSE='debug'
+            ;;
+        -h)
+            usage
+            exit 0
+            ;;
+        *)
+            log_error "Unsupported Option: ${1}"
+            usage
+            exit 1
+            ;;
+    esac
+    shift
+done
+
+#---------------------------------------#
+#-          Log Configuration          -#
+#---------------------------------------#
+if [ -n "$TMNS_VERBOSE" ]; then
+    _tmns_log_level=${_tmns_log_levels[debug]}
+elif [ -n "$SSP_LOG_LEVEL" ]; then
+    _tmns_log_level=${_tmns_log_levels[$TMNS_LOG_LEVEL]}
+else
+    _tmns_log_level=${_tmns_log_levels[info]}
+fi
+#---------------------------------------#
+
+# Baseline repository URL
+GIT_REPO_URL='git@bitbucket.org:msmith81886'
+log_debug "GIT_REPO_URL: ${GIT_REPO_URL}"
+
+#  March through each repo
+
+#  Terminus CMake
+if [ "${REPO_SET}" = 'ALL' ]; then
+    _checkout_repo terminus-cmake
+fi
+
+#  Terminus Core
+if [ "${REPO_SET}" = 'ALL' ]; then
+    _checkout_repo terminus-core
+fi
+
+#  Terminus Docs
+if [ "${REPO_SET}" = 'ALL' ]; then
+    _checkout_repo terminus-docs
+fi
+
+#  Terminus Image
+if [ "${REPO_SET}" = 'ALL' ]; then
+    _checkout_repo terminus-image
+fi
+
+#  Terminus Math
+if [ "${REPO_SET}" = 'ALL' ]; then
+    _checkout_repo terminus-math
+fi
+
+#  Terminus Log
+if [ "${REPO_SET}" = 'ALL' ]; then
+    _checkout_repo terminus-log
+fi
+
+#  Terminus Outcome
+if [ "${REPO_SET}" = 'ALL' ]; then
+    _checkout_repo terminus-outcome
+fi
+
+#  Terminus Repo Utilities
+if [ "${REPO_SET}" = 'ALL' ]; then
+    _checkout_repo terminus-repo-utilities
+fi
+
