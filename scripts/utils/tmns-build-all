@@ -27,11 +27,16 @@ function _tmns-build-repo()
         pushd ${REPO_PATH}
 
         if [[ "${BUILD_TYPE}" = 'all' || "${BUILD_TYPE}" == 'release' ]]; then
-            conan-build.sh ${BUILD_ARGS} -r ${CONAN_BUILD_FLAGS}
+            CMD="conan-build.sh ${BUILD_ARGS} -r ${CONAN_BUILD_FLAGS}"
+            log_info ${CMD}
+            ${CMD}
+
         fi
 
         if [[ "${BUILD_TYPE}" = 'all' || "${BUILD_TYPE}" == 'debug' ]]; then
-            conan-build.sh ${BUILD_ARGS} ${CONAN_BUILD_FLAGS}
+            CMD="conan-build.sh ${BUILD_ARGS} ${CONAN_BUILD_FLAGS}"
+            log_info ${CMD}
+            ${CMD}
         fi
 
         popd
