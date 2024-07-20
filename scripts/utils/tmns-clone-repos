@@ -147,14 +147,15 @@ if [ "${REPO_SET}" = 'ALL' ]; then
     _checkout_repo terminus-image
 fi
 
+
 #  Terminus Math
 if [ "${REPO_SET}" = 'ALL' ]; then
     _checkout_repo terminus-math
 fi
 
-#  Terminus Log
+#  Terminus NITF
 if [ "${REPO_SET}" = 'ALL' ]; then
-    _checkout_repo terminus-log
+    _checkout_repo terminus-nitf
 fi
 
 #  Terminus Outcome
@@ -167,3 +168,7 @@ if [ "${REPO_SET}" = 'ALL' ]; then
     _checkout_repo terminus-repo-utilities
 fi
 
+#  Terminus C++ Demos
+if [ "${REPO_SET}" = 'ALL' ]; then
+    _checkout_repo terminus-cpp-demos
+fi

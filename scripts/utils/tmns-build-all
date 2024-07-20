@@ -216,7 +216,15 @@ if [ "${BUILD_SET}" = 'all' ]; then
 fi
 
 if [ "${BUILD_SET}" = 'all' ]; then
+    _tmns-build-repo 'terminus-nitf'    ${BUILD_TYPE} ${CLEAR_ALL}
+fi
+
+if [ "${BUILD_SET}" = 'all' ]; then
     _tmns-build-repo 'terminus-image'   ${BUILD_TYPE} ${CLEAR_ALL}
+fi
+
+if [ "${BUILD_SET}" = 'all' ]; then
+    _tmns-build-repo 'terminus-cpp-demos' ${BUILD_TYPE} ${CLEAR_ALL}
 fi
 
 
