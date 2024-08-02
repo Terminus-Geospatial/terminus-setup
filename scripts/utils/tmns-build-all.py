@@ -235,13 +235,22 @@ def parse_command_line():
                          required = False,
                          help = 'Default behavior is to look for tmns-profile.cfg in the local filesystem.  This skips that.' )
 
+    parser.add_argument( '-l', '--log-path',
+                         dest = 'log_file_path',
+                         default = None,
+                         required = False,
+                         help = 'Write output to log path.' )
+    
     return parser.parse_args()
 
 def configure_logging( options ):
 
     severity = logging.getLevelName( options.log_severity )
 
-    logging.basicConfig( level = severity )
+    if logging.log_file_path is None:
+        logging.basicConfig( level = severity )
+    else:
+        logging.basicConfig( level = severity, filename = options.log_file_path )
 
 def main():
 
