@@ -30,11 +30,13 @@ class TerminusRepo:
                   repo_name, 
                   repo_path, 
                   build_modes,
-                  clean_repo ):
-        self.repo_name   = repo_name
-        self.repo_path   = repo_path
-        self.build_modes = build_modes
-        self.clean_repo  = clean_repo
+                  clean_repo,
+                  build_missing ):
+        self.repo_name     = repo_name
+        self.repo_path     = repo_path
+        self.build_modes   = build_modes
+        self.clean_repo    = clean_repo
+        self.build_missing = build_missing
 
         #  Build modes, if none, will get both release and debug
         if len(self.build_modes) == 0:
@@ -44,7 +46,7 @@ class TerminusRepo:
         if len(self.build_modes) > 1:
             self.clean_repo = True
 
-    def get_build_command( self, build_mode, clean_repo ):
+    def get_build_command( self, build_mode, clean_repo, build_missing ):
         
         build_flags = { 'release': '-r',
                         'debug': '' }
@@ -52,7 +54,10 @@ class TerminusRepo:
         clean_flag = { True: '-c',
                        False: '' }
         
-        cmd = f'conan-build.sh {build_flags[build_mode]} {clean_flag[clean_repo]}'
+        bm_flag = { True: '--build-missing',
+                    False: '' }
+        
+        cmd = f'conan-build.sh {build_flags[build_mode]} {clean_flag[clean_repo]} {bm_flag[build_missing]}'
 
         return cmd
     
@@ -70,8 +75,9 @@ class TerminusRepo:
         os.chdir( self.repo_path )
         
         for build_mode in self.build_modes:
-            build_cmd = self.get_build_command( build_mode = build_mode,
-                                                clean_repo = self.clean_repo )
+            build_cmd = self.get_build_command( build_mode    = build_mode,
+                                                clean_repo    = self.clean_repo,
+                                                build_missing = self.build_missing )
             logger.debug( f'Build Command: {build_cmd}' )
 
             ret = subprocess.run( build_cmd,
@@ -114,34 +120,37 @@ class TerminusProfile:
 def load_profile( profile_path, 
                   ignore_profiles,
                   build_modes,
-                  clean_repos ):
+                  clean_repos,
+                  build_missing ):
 
-    logger = logging.getLogger( 'tmns-build-all.load_profile' )
-
+    print( f'Ignore Profiles: {ignore_profiles}' )
     #  If the user provided a profile and it doesn't exist, exit now
     if profile_path != None and os.path.exists( profile_path ) == False:
-        logger.error( f'User provided profile ({profile_path}) does not exist. Exiting.' )
+        print( f'User provided profile ({profile_path}) does not exist. Exiting.' )
         return None
     
     #  Otherwise, if the profile is none, look for a default profile
-    elif profile_path is None and os.path.exists( DEFAULT_PROFILE_PATH ) == True:
-        logger.info( f'Found default profile ({DEFAULT_PROFILE_PATH}). Using that.' )
+    elif profile_path is None and ( ignore_profiles != True and os.path.exists( DEFAULT_PROFILE_PATH ) == True):
+        print( f'Found default profile ({DEFAULT_PROFILE_PATH}). Using that.' )
         profile_path = DEFAULT_PROFILE_PATH
 
     #  otherwise, use default repo and options
-    elif profile_path is None:
+    elif profile_path is None or ignore_profiles:
         repos = []
         for repo in DEFAULT_REPO_LIST:
-            repos.append( TerminusRepo( repo_name   = repo,
-                                        repo_path   = repo,
-                                        build_modes = build_modes,
-                                        clean_repo  = clean_repos ) )
+            repos.append( TerminusRepo( repo_name     = repo,
+                                        repo_path     = repo,
+                                        build_modes   = build_modes,
+                                        clean_repo    = clean_repos,
+                                        build_missing = build_missing ) )
         
         profile = TerminusProfile( repos = repos )
         return profile
 
     #  If we have a valid profile, parse it
     profile_cfg = configparser.ConfigParser()
+
+    print( f'Loading Profile: {profile_path}' )
     profile_cfg.read( profile_path )
 
     repos = []
@@ -156,7 +165,7 @@ def load_profile( profile_path,
 
         #  Skip if build is set to false
         if repo_info.getboolean('build') == False:
-            logger.debug( f' Skipping {repo_name} as profile wants to skip building' )
+            print( f' Skipping {repo_name} as profile wants to skip building' )
             continue
 
         repo_path       = repo_info.get('path')
@@ -166,10 +175,11 @@ def load_profile( profile_path,
         if not clean_repos is None:
             cfg_clean_repo = clean_repos
 
-        repos.append( TerminusRepo( repo_name   = repo_name,
-                                    repo_path   = repo_path,
-                                    build_modes = cfg_build_modes,
-                                    clean_repo  = cfg_clean_repo ) )
+        repos.append( TerminusRepo( repo_name     = repo_name,
+                                    repo_path     = repo_path,
+                                    build_modes   = cfg_build_modes,
+                                    clean_repo    = cfg_clean_repo,
+                                    build_missing = build_missing ) )
 
     profile = TerminusProfile( repos = repos )
 
@@ -186,13 +196,6 @@ def parse_command_line():
                           action = 'store_const',
                           const = 'DEBUG',
                           help = 'Log at debugging level' )
-
-    parser.add_argument( '-vv',
-                         dest = 'log_severity',
-                         required = False,
-                         action = 'store_const',
-                         const = 'TRACE',
-                         help = 'Log at trace level' )
     
     parser.add_argument( '-r',
                          dest = 'build_modes',
@@ -241,16 +244,23 @@ def parse_command_line():
                          required = False,
                          help = 'Write output to log path.' )
     
+    parser.add_argument( '--build-missing',
+                         dest = 'build_missing',
+                         action = 'store_true',
+                         default = False,
+                         help = 'Tell build system to build missing repos' )
+    
     return parser.parse_args()
 
 def configure_logging( options ):
 
     severity = logging.getLevelName( options.log_severity )
 
-    if logging.log_file_path is None:
+    if options.log_file_path is None:
         logging.basicConfig( level = severity )
     else:
         logging.basicConfig( level = severity, filename = options.log_file_path )
+    logging.debug( 'Logger Initialized' )
 
 def main():
 
@@ -260,7 +270,8 @@ def main():
     profile = load_profile( cmd_args.profile_path,
                             cmd_args.ignore_profiles,
                             cmd_args.build_modes,
-                            cmd_args.clean_repos )
+                            cmd_args.clean_repos,
+                            cmd_args.build_missing )
     
     #  Exit if task failed
     if profile is None:
