@@ -8,7 +8,7 @@
 ##          Use of this source code is governed by LICENSE in the repo root.          ##
 ##                                                                                    ##
 ############################# INTELLECTUAL PROPERTY RIGHTS #############################
-
+#
  # Python Libraries
 import argparse
 import configparser
@@ -40,7 +40,7 @@ def parse_command_line():
 
     tag_list = []
     for repo in DEFAULT_REPO_LIST:
-        for tag in repo['tags']:
+        for tag in DEFAULT_REPO_LIST[repo]['tags']:
             if not tag in tag_list:
                 tag_list.append( tag )
 
@@ -85,7 +85,7 @@ def configure_logging( options ):
 
     severity = logging.getLevelName( options.log_severity )
 
-    if logging.log_file_path is None:
+    if options.log_file_path is None:
         logging.basicConfig( level = severity )
     else:
         logging.basicConfig( level = severity, filename = options.log_file_path )
@@ -98,8 +98,16 @@ def main():
     #  Setup logging
     configure_logging( cmd_args )
 
-    #  
+    #  Iterate over repo list
+    for repo in DEFAULT_REPO_LIST:
+        
+        #  Get the repo url
+        repo_url = DEFAULT_REPO_LIST[repo]['url']
 
+        #  Build clone command
+        clone_cmd = f'git clone {repo_url}'
+        logging.debug( f'Command: {clone_cmd}' )
+        os.system( clone_cmd )
 
 if __name__ == '__main__':
     main()

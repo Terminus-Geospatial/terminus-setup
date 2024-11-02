@@ -1,4 +1,14 @@
 #!/usr/bin/env python3
+#
+############################# INTELLECTUAL PROPERTY RIGHTS #############################
+##                                                                                    ##
+##                           Copyright (c) 2024 Terminus LLC                          ##
+##                                All Rights Reserved.                                ##
+##                                                                                    ##
+##          Use of this source code is governed by LICENSE in the repo root.          ##
+##                                                                                    ##
+############################# INTELLECTUAL PROPERTY RIGHTS #############################
+#
 #    File:    tmns-build-all.py
 #    Author:  Marvin Smith
 #    Date:    8/2/2024
