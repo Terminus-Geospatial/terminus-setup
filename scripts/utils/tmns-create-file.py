@@ -15,6 +15,7 @@ import argparse
 import collections
 import datetime
 import logging
+import os
 
 
 CPP_BASE_TEMPLATE = '''/**************************** INTELLECTUAL PROPERTY RIGHTS ****************************/
@@ -25,12 +26,12 @@ CPP_BASE_TEMPLATE = '''/**************************** INTELLECTUAL PROPERTY RIGHT
 /*                                                                                    */
 /*          Use of this source code is governed by LICENSE in the repo root.          */
 /*                                                                                    */
-/***************************# INTELLECTUAL PROPERTY RIGHTS ****************************/
+/**************************** INTELLECTUAL PROPERTY RIGHTS ****************************/
 /**
  * @file    __PATHNAME__
  * @author  __AUTHOR__
  * @date    __HEADER_DATE____PURPOSE__
- */
+ */__HEADER_EXTRA__
 
 namespace __NAMESPACE__ {
 
@@ -68,6 +69,13 @@ def format_class_name( args ):
     
     return choices[args["file_type"]] + '__CONTENT__' 
 
+def format_cpp_header( args ):
+
+    if args['file_type'] == 'hpp':
+        return '\n#pragma once'
+    else:
+        return ''
+    
 def write_file( args, content ):
 
     with open( args["output_path"], 'w' ) as fout:
@@ -203,7 +211,7 @@ def main():
     #-----------------------------------------------#
     
     #   File Pathname
-    template = template.replace( '__PATHNAME__', args['output_path'] )
+    template = template.replace( '__PATHNAME__', os.path.basename(args['output_path']) )
 
     #   Date
     date_string = datetime.datetime.now().strftime("%m/%d/%Y")
@@ -223,6 +231,8 @@ def main():
     #  CPP Class
     template = template.replace( '__CONTENT__', format_class_name( args ))
 
+    #  CPP Header Extras
+    template = template.replace( '__HEADER_EXTRA__', format_cpp_header( args ) )
 
     #  This must always be the last section prior to writing file.  That way, the content can get removed
     #  if it is still there.
