@@ -10,7 +10,7 @@
 ############################# INTELLECTUAL PROPERTY RIGHTS #############################
 #
 
-skip -e
+set -e
 
 function usage() {
     echo "usage: ${0} <flags>"
@@ -53,13 +53,23 @@ function update_shell() {
     else
         echo 'tmns-import already defined. skipping'
     fi
-
-
-
 }
 
-SKIP_BASH=0
+function check_if_conan_installed() {
 
+    if [ "$(which conan)" == '' ]; then 
+        echo '1'
+    fi
+    echo '0'
+}
+
+#  Setup logging
+# Bring the required utilities into scope
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)/utils"
+source "${SCRIPT_DIR}/log.bash"
+
+#  Flag to skip using BASH 
+SKIP_BASH=0
 SHELL_LIST=()
 
 #  Iterate over arguments
@@ -93,24 +103,27 @@ while [ -n "${1}" ]; do
     shift
 done
 
+#------------------------------------------------#
+#-          Check if Conan Installed            -#
+#------------------------------------------------#
+if [ "$(check_if_conan_installed)" == '0' ]; then
+    log_debug "conan found at `which conan`"
+else
+    log_error "conan is not installed. Setup Virtual Environment immediately."
+fi
+
 SHELL_PATHS=()
 
 #  Resolve which shells to use
 if [ "${#SHELL_LIST[@]}" == '0' ]; then
-    echo 'No shells defined, looking for installed options.'
+    log_info 'No shells defined, looking for installed options.'
 
     SHELLS_TO_TEST=("${HOME}/.zshrc" "${HOME}/.bashrc")
     for SHELL_TO_TEST in "${SHELLS_TO_TEST[@]}"; do 
         if [ -e "${SHELL_TO_TEST}" ]; then
-            echo "Adding: ${SHELL_TO_TEST}"
+            log_debug "Adding: ${SHELL_TO_TEST}"
             SHELL_PATHS+=("${SHELL_TO_TEST}")
         fi
-    done
-
-else
-    echo "SHELL LIST : ${SHELL_LIST[@]}, Len: ${#SHELL_LIST[@]}"
-    for SHELL in "${SHELL_LIST[@]}"; do
-        echo "SHELL: ${SHELL}"
     done
 fi
 
