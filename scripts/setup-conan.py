@@ -65,32 +65,64 @@ def parse_command_line():
     
     return parser.parse_args()
 
+def run_command( logger, command, desc, dry_run, exit_if_fail = True ):
+
+    if dry_run:
+        logger.info( f'command: {command}' )
+    else:
+        logger.debug( f'command: {command}' )
+        result = subprocess.run( command, shell = True, check = True, capture_output = True )
+        if result.returncode != 0:
+            logger.error( f'Unable to properly {desc}: ',
+                          result.stdout.decode('utf-8') )
+            if exit_if_fail:
+                sys.exit(1)
+        logger.debug( result.stdout.decode('utf-8'))
+
 def removing_existing( logger, venv_path, dry_run ):
 
     logger.info( f'Removing existing environment' )
     cmd = f'rm -rv {venv_path}'
-    
-    if dry_run:
-        logger.info( 'cmd: ', cmd )
-    else:
-        logger.debug( 'cmd: ', cmd )
-        result = subprocess.run( cmd, shell = True, check = True, capture_output = True )
-        if result.returncode != 0:
-            logger.error( 'Unable to properly delete existing env: ',
-                          result.stdout.decode('utf-8') )
-            sys.exit(1)
+    run_command( logger, cmd, 'delete existing environment', dry_run )
+
 
 def build_virtual_environment( logger, venv_path, python_path, dry_run ):
 
+    logger.info( f'Building new Virtual Environment' )
     cmd = f'{python_path} -m venv {venv_path}'
-    if dry_run:
-        logger.info( 'cmd: ', cmd )
-    else:
-        logger.debug( 'cmd: ', cmd )
-        result = subprocess.run( cmd, check=True, shell = True, capture_output=True)
-        if result.returncode != 0:
-            logger.error( 'Error with creation of venv: ', result.stdout.decode('utf-8') )
-            sys.exit(1)
+    run_command( logger, cmd, 'creating new venv', dry_run )
+
+def setup_virtual_environment( logger, python_path, venv_path, dry_run ):
+
+    cmd = f'. {venv_path}/bin/activate && pip install --upgrade pip'
+    run_command( logger, cmd, 'updating pip', dry_run )
+
+    cmd = f'. {venv_path}/bin/activate && pip install conan'
+    run_command( logger, cmd, 'installing conan', dry_run )
+
+def update_shell_scripts( logger, venv_path, dry_run ):
+
+    #  Iterate over available scripts
+    for shell_rc in [ f'{os.environ.get("HOME")}/.bashrc', f'{os.environ.get("HOME")}/.zshrc' ]:
+
+        if os.path.exists( shell_rc ):
+            print( f'Updating: {shell_rc}' )
+
+            #  Check if shell script has the import function already
+            add_command = False
+            with open( shell_rc, 'r' ) as fin:
+                text = fin.read()
+                if 'go-conan' in text:
+                    logger.warning( f'The command "go-conan" already in {shell_rc}' )
+                else:
+                    add_command = True
+
+            if add_command:
+                cmd  = f'echo "# This function added by Terminus setup-conan script." >> {shell_rc}\n'
+                cmd += f'echo "function go-conan() {{" >> {shell_rc}\n'
+                cmd += f"echo '    . ${{HOME}}/conan/bin/activate' >> {shell_rc}\n"
+                cmd += f"echo '}}' >> {shell_rc}"
+                run_command( logger, cmd, 'adding conan alias', dry_run )
 
 def main():
 
@@ -122,6 +154,15 @@ def main():
                                    venv_path,
                                    cmd_args.python_path,
                                    cmd_args.dry_run )
+        
+    setup_virtual_environment( logger, 
+                               cmd_args.python_path,
+                               venv_path, 
+                               cmd_args.dry_run )
+
+    update_shell_scripts( logger, 
+                          venv_path,
+                          cmd_args.dry_run )
 
 if __name__ == '__main__':
     main()
