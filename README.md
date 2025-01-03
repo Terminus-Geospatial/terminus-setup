@@ -11,12 +11,16 @@ Terminus C++ APIs are designed to be built using Conan.  This is not explicitly 
 
 ## Step 0: Setup Prerequisites
 
+### Notes about Dependencies
+
+GDAL and OpenCV currently do not install via conan. 
+
 ### Fedora/RHEL
 
 For RHEL/Fedora/CentOS users, the following will install the core dependencies. 
 
 ```bash
-sudo dnf install cmake g++
+sudo dnf install cmake g++ gdal-devel opencv-devel
 ```
 
 ## Step 1: Setup Conan
