@@ -9,6 +9,16 @@ Terminus C++ APIs are designed to be built using Conan.  This is not explicitly 
 
 ---
 
+## Step 0: Setup Prerequisites
+
+### Fedora/RHEL
+
+For RHEL/Fedora/CentOS users, the following will install the core dependencies. 
+
+```bash
+sudo dnf install cmake g++
+```
+
 ## Step 1: Setup Conan
 If you already have conan installed, then skip this this.  Make sure to enable conan on your system path. 
 
