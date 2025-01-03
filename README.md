@@ -39,7 +39,25 @@ Run one of the two following commands to import the conan environment.
 1. `go-conan`
 2. `. ${HOME}/conan/bin/activate`
 
-## Step 4: Clone Terminus Repos
+## Step 4: Setup Conan 
+
+Conan requires a profile before you can start importing libraries.  
+
+Run the following command for default use-cases.
+
+```bash
+conan-setup.bash
+```
+
+Next, setup your profile settings.  For the uninitiated, this is likely good enough:
+
+```bash
+conan profile detect
+```
+
+This will setup your conan profile to use `conancenter`.
+
+## Step 5: Clone Terminus Repos
 
 This repo packages a command-line tool for cloning all repositories in a single shot. 
 

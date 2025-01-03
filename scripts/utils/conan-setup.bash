@@ -46,7 +46,7 @@ function details() {
     echo "    - Source : Do Conan setup and make available additional variables/functions in"
     echo "      the current shell, including modifying PATH."
     echo
-    echo "This script requires Python 3.6+.  It will try using 'python3' command directly."
+    echo "This script requires Python 3.10+.  It will try using 'python3' command directly."
 }
 
 function show_help() {
@@ -215,11 +215,10 @@ log_info "Using conan $__conan_version"
 #--------------------------------------------#
 
 
-
 #  Bring in more utility functions
 eval "$(cat "$__dir_scripts/conan-utils.bash")"
 
-log_info "Conan data will be stored in '${CONAN_USER_HOME:-$HOME}/.conan'"
+log_info "Conan data will be stored in '${CONAN_USER_HOME:-$HOME}/.conan2'"
 
 log_info '--------------------'
 log_info 'Conan setup complete'
