@@ -33,8 +33,14 @@ This will create a Python virtual environment in `${HOME}/conan` with conan inst
 
 ## Step 2: Restart your shell or re-source the particular rc file.
 
+If you are on MacOS, you will likely need to use ZSH.
 ```bash
 . ~/.zshrc
+```
+
+For Linux or otherwise Bash users...
+```bash
+. ~/.bashrc
 ```
 
 ## Step 3: Import Conan
