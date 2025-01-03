@@ -15,7 +15,7 @@ import configparser
 import logging
 import os
 
-DEFAULT_REPO_LIST = { 'terminus-repo-utilities': { 'url' :  'git@bitbucket.org:msmith81886/terminus-repo-utilities',
+DEFAULT_REPO_LIST = { 'terminus-setup'         : { 'url' :  'git@bitbucket.org:msmith81886/terminus-setup',
                                                    'tags': ['tools'] },
                       'terminus-cmake'         : { 'url' :  'git@bitbucket.org:msmith81886/terminus-cmake',
                                                    'tags': ['tools','cpp'] },
@@ -46,19 +46,12 @@ def parse_command_line():
 
     parser.add_argument( '-v',
                           dest = 'log_severity',
-                          default = 'INFO',
+                          default = logging.INFO,
                           required = False,
                           action = 'store_const',
-                          const = 'DEBUG',
+                          const = logging.DEBUG,
                           help = 'Log at debugging level' )
 
-    parser.add_argument( '-vv',
-                         dest = 'log_severity',
-                         required = False,
-                         action = 'store_const',
-                         const = 'TRACE',
-                         help = 'Log at trace level' )
-    
     parser.add_argument( '-l', '--log-path',
                          dest = 'log_file_path',
                          default = None,
@@ -83,12 +76,10 @@ def parse_command_line():
 
 def configure_logging( options ):
 
-    severity = logging.getLevelName( options.log_severity )
-
     if options.log_file_path is None:
-        logging.basicConfig( level = severity )
+        logging.basicConfig( level = options.log_level )
     else:
-        logging.basicConfig( level = severity, filename = options.log_file_path )
+        logging.basicConfig( level = options.log_level, filename = options.log_file_path )
 
 def main():
     

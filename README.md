@@ -1,37 +1,49 @@
 Terminus Setup
 ==========================
 
-This has a few key tools for configuring a system to build the Terminus software repos. 
+This repo has the necessary tools for setting up the tools required to build and install Terminus.
 
-## Setup Conan
+## Overview
+
+Terminus C++ APIs are designed to be built using Conan.  This is not explicitly required, however Conan offers a few major benefits, specifically around versioning.
+
+---
+
+## Step 1: Setup Conan
 If you already have conan installed, then skip this this.  Make sure to enable conan on your system path. 
 
-If you do not have conan installed, runt he following:
+If you do not have conan installed, run the following:
 
 ```bash
 pushd scripts
-./setup-conan.py -p <python-version> 
+./setup-conan.py
 ```
 
 This will create a Python virtual environment in `${HOME}/conan` with conan installed. 
 
-Then, activate the env. 
+## Step 2: Restart your shell or re-source the particular rc file.
 
 ```bash
-. ${HOME}/conan/bin/activate
+. ~/.zshrc
 ```
 
-## Setting Up New Linux / MacOS System
+## Step 3: Import Conan
 
-1. Navigate to the scripts folder and run the `install-local.bash` script.
+If you use this install script, it adds a command `go-conan` inside your shell RC file. 
 
-This toolchain will do the following:
+* ZSH: `${HOME}/.zshrc`
+* BASH: `${HOME}/.bashrc`
 
-- Check for all required tools on the command-line
-    - `conan`
+Run one of the two following commands to import the conan environment. 
 
-- The script will setup your `${HOME}/.bashrc` or `${HOME}/.zshrc` file. 
+1. `go-conan`
+2. `. ${HOME}/conan/bin/activate`
 
-2. Next, restart your shell or re-source the particular rc file.
+## Step 4: Clone Terminus Repos
 
+This repo packages a command-line tool for cloning all repositories in a single shot. 
+
+```bash
+tmns-clone-repos.py -vv --all
+```
 
