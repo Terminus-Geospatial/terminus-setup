@@ -1,4 +1,14 @@
 #!/usr/bin/env bash
+#
+############################# INTELLECTUAL PROPERTY RIGHTS #############################
+##                                                                                    ##
+##                           Copyright (c) 2024 Terminus LLC                          ##
+##                                All Rights Reserved.                                ##
+##                                                                                    ##
+##          Use of this source code is governed by LICENSE in the repo root.          ##
+##                                                                                    ##
+############################# INTELLECTUAL PROPERTY RIGHTS #############################
+#
 #    File:    conan-setup.bash
 #    Author:  Marvin Smith
 #    Date:    7/5/2023

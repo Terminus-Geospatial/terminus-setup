@@ -9,6 +9,10 @@
 ##                                                                                    ##
 ############################# INTELLECTUAL PROPERTY RIGHTS #############################
 #
+#    File:    install-as-shell-scripts.bash
+#    Author:  Marvin Smith
+#    Date:    8/2/2024
+#
 
 set -e
 
