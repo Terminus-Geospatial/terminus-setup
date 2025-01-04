@@ -17,7 +17,7 @@ import os
 
 DEFAULT_REPO_LIST = { 'terminus-setup'         : { 'url' :  'git@github.com:Terminus-Geospatial/terminus-setup.git',
                                                    'tags': ['tools'] },
-                      'terminus-cmake'         : { 'url' :  'git@bitbucket.org:msmith81886/terminus-cmake',
+                      'terminus-cmake'         : { 'url' :  'git@github.com:Terminus-Geospatial/terminus-cmake.git',
                                                    'tags': ['tools','cpp'] },
                       'terminus-log'           : { 'url' :  'git@bitbucket.org:msmith81886/terminus-log',
                                                    'tags': ['tools','cpp'] },
