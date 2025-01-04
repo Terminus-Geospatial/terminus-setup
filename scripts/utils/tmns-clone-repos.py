@@ -15,7 +15,7 @@ import configparser
 import logging
 import os
 
-DEFAULT_REPO_LIST = { 'terminus-setup'         : { 'url' :  'git@bitbucket.org:msmith81886/terminus-setup',
+DEFAULT_REPO_LIST = { 'terminus-setup'         : { 'url' :  'git@github.com:Terminus-Geospatial/terminus-setup.git',
                                                    'tags': ['tools'] },
                       'terminus-cmake'         : { 'url' :  'git@bitbucket.org:msmith81886/terminus-cmake',
                                                    'tags': ['tools','cpp'] },
