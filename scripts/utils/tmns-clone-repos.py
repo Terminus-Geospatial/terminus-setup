@@ -18,21 +18,25 @@ import os
 DEFAULT_REPO_LIST = { 'terminus-setup'         : { 'url' :  'git@github.com:Terminus-Geospatial/terminus-setup.git',
                                                    'tags': ['tools'] },
                       'terminus-cmake'         : { 'url' :  'git@github.com:Terminus-Geospatial/terminus-cmake.git',
-                                                   'tags': ['tools','cpp'] },
+                                                   'tags': ['tools','cpp','cmake','build'] },
                       'terminus-log'           : { 'url' :  'git@github.com:Terminus-Geospatial/terminus-log.git',
-                                                   'tags': ['tools','cpp'] },
-                      'terminus-outcome'       : { 'url' :  'git@bitbucket.org:msmith81886/terminus-outcome',
-                                                   'tags': ['tools','cpp'] },
+                                                   'tags': ['tools','cpp','log'] },
+                      'terminus-outcome'       : { 'url' :  'git@github.com:Terminus-Geospatial/terminus-outcome.git',
+                                                   'tags': ['tools','cpp','error'] },
                       'terminus-core'          : { 'url' :  'git@bitbucket.org:msmith81886/terminus-core',
                                                    'tags': ['tools','cpp'] },
                       'terminus-math'          : { 'url' :  'git@bitbucket.org:msmith81886/terminus-math',
+                                                   'tags': ['tools','cpp'] },
+                      'terminus-coord'         : { 'url': 'git@github.com:Terminus-Geospatial/terminus-coord.git',
                                                    'tags': ['tools','cpp'] },
                       'terminus-nitf'          : { 'url' :  'git@bitbucket.org:msmith81886/terminus-nitf',
                                                    'tags': ['tools','cpp'] },
                       'terminus-image'         : { 'url' :  'git@bitbucket.org:msmith81886/terminus-image',
                                                    'tags': ['tools','cpp'] },
                       'terminus-cpp-demos'     : { 'url' :  'git@bitbucket.org:msmith81886/terminus-cpp-demos',
-                                                   'tags': ['tools','cpp'] } }
+                                                   'tags': ['tools','cpp'] },
+                      'terminus-docs'          : { 'url' :  'git@github.com:Terminus-Geospatial/terminus-docs.git',
+                                                   'tags': ['docs'] } }
 
 def parse_command_line():
 
@@ -45,7 +49,7 @@ def parse_command_line():
                 tag_list.append( tag )
 
     parser.add_argument( '-v',
-                          dest = 'log_severity',
+                          dest = 'log_level',
                           default = logging.INFO,
                           required = False,
                           action = 'store_const',
