@@ -69,6 +69,12 @@ Run the following command for default use-cases.
 conan-setup.bash
 ```
 
+This will update your `~/.bashrc` and `~/.zshrc`.  You will want to restart your terminal or re-source the appropriate rc file.
+
+```bash
+. ${HOME}/.bashrc
+```
+
 Next, setup your profile settings.  For the uninitiated, this is likely good enough:
 
 ```bash

@@ -118,7 +118,7 @@ def update_shell_scripts( logger, venv_path, dry_run ):
                     add_command = True
 
             if add_command:
-                cmd  = f'echo "# This function added by Terminus setup-conan script." >> {shell_rc}\n'
+                cmd  = f'\necho "# This function added by Terminus setup-conan script." >> {shell_rc}\n'
                 cmd += f'echo "function go-conan() {{" >> {shell_rc}\n'
                 cmd += f"echo '    . ${{HOME}}/conan/bin/activate' >> {shell_rc}\n"
                 cmd += f"echo '}}' >> {shell_rc}"
