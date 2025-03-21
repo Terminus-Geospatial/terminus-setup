@@ -87,7 +87,10 @@ This will setup your conan profile to use `conancenter`.
 
 This repo packages a command-line tool for cloning all repositories in a single shot. 
 
+First, navigate back to a common area
+
 ```bash
+cd ../
 tmns-clone-repos.py -vv --all
 ```
 
