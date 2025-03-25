@@ -106,7 +106,9 @@ def update_shell_scripts( logger, venv_path, dry_run ):
     for shell_rc in [ f'{os.environ.get("HOME")}/.bashrc', f'{os.environ.get("HOME")}/.zshrc' ]:
 
         if os.path.exists( shell_rc ):
-            print( f'Updating: {shell_rc}' )
+
+            #  Only update if RC file actually exists
+            logger.info( f'Updating: {shell_rc}' )
 
             #  Check if shell script has the import function already
             add_command = False
